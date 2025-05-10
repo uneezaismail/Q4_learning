@@ -1,6 +1,6 @@
-from fastapi import FastAPI, Path , Query, Body
+from fastapi import FastAPI, Path , Query, Body, Header
 from pydantic import BaseModel
-
+from typing import Optional
 
 app = FastAPI()
 
@@ -51,7 +51,10 @@ class Item(BaseModel):
 
 @app.put("/items/validated/{item_id}")
 async def update_item(
-    item_id: int = Path(..., title="Item Unique Identifier", ge=1),
+    item_id: int = Path(
+        ..., 
+        title="Item Unique Identifier", 
+        ge=1),
     q: str | None = Query(None, min_length=3, description="Search query to filter items"),
     item: Item | None = Body(None, description="Optional item details in JSON format")
 ):
@@ -63,4 +66,13 @@ async def update_item(
     return result
 
 
-
+#  Header Parameter 
+@app.get("/items/{item_id}/header")
+async def get_item_with_header(
+    item_id: int = Path(
+        ..., 
+        title="Item Identifier", 
+        ge=1),
+    user_agent: Optional[str] = Header(None, title="User-Agent", description="The User-Agent string of the client")
+):
+    return {"item_id": item_id, "user_agent": user_agent}
